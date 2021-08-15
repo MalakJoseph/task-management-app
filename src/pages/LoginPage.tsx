@@ -9,9 +9,8 @@ import ResetPassword from "../components/ResetPassword";
 
 const LoginPage = () => {
   const history = useHistory();
-  const [isAuth, setIsAuth] = React.useState<boolean | null>(null);
-  const [isForgotPassword, setIsForgotPassword] =
-    React.useState<boolean>(false);
+  const [isWrongValues, setIsWrongValues] = React.useState(false);
+  const [isForgotPassword, setIsForgotPassword] = React.useState(false);
   const [tempError, setTempError] = React.useState("");
   const token = localStorage.getItem("token");
 
@@ -27,7 +26,7 @@ const LoginPage = () => {
     };
 
     if (!body.email.length || !body.password.length) {
-      setIsAuth(false);
+      setIsWrongValues(true);
       return;
     }
 
@@ -47,13 +46,13 @@ const LoginPage = () => {
         .post<{ user: UserInfo; token: string }>("/users/login", body)
         .then((res) => res.data.token)
         .catch((e) => {
-          if (e.response.status === 401) setIsAuth(false);
+          if (e.response.status === 401) setIsWrongValues(true);
         });
 
       if (!token) {
         return;
       }
-      setIsAuth(true);
+      setIsWrongValues(false);
       localStorage.setItem("token", token);
       history.replace("/");
     }
@@ -64,7 +63,7 @@ const LoginPage = () => {
   ) => {
     e.preventDefault();
     setIsForgotPassword(true);
-    setIsAuth(null);
+    setIsWrongValues(false);
   };
 
   if (token) history.replace("/");
@@ -80,7 +79,7 @@ const LoginPage = () => {
             onClickForgotPassword={handleClickForgotPassword}
           />
         )}
-        {isAuth === false && (
+        {isWrongValues && (
           <p>Please enter correct values for Email and Password</p>
         )}
         {tempError && <p>{tempError}</p>}
