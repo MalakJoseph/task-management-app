@@ -1,0 +1,2 @@
+1. Error messages for (Password shorter than 7).
+2. Hash passwords when being sent by requests
