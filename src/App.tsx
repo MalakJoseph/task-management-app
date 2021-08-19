@@ -1,22 +1,23 @@
 import * as React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { debounce } from "lodash";
 import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage";
 
 function App() {
-  const mobileScreen = window.innerWidth <= 425;
+  const [windowWidth, setWindowWidth] = React.useState(0);
 
-  const [isMobileScreen, setIsMobileScreen] = React.useState(() =>
-    mobileScreen ? true : false
-  );
+  let resizeWindow = debounce(() => {
+    setWindowWidth(window.innerWidth);
+  }, 100);
 
-  window.addEventListener("resize", () => {
-    if (mobileScreen) {
-      setIsMobileScreen(true);
-    } else {
-      setIsMobileScreen(false);
-    }
-  });
+  React.useEffect(() => {
+    resizeWindow();
+    window.addEventListener("resize", resizeWindow);
+    return () => window.removeEventListener("resize", resizeWindow);
+  }, [resizeWindow]);
+
+  let isMobileScreen = windowWidth <= 768;
 
   return (
     <>
