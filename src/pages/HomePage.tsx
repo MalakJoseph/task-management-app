@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import { useHistory } from "react-router-dom";
 import { useGravatar } from "../utils/useGravatar";
 import { UserInfo } from "../types";

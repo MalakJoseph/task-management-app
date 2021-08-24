@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "styled-components/macro";
 import InputWithIcon from "./InputWithIcon";
 import { PrimaryButton } from "../components/Button";
 import { Label } from "../utils/globals";

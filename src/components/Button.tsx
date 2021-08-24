@@ -1,6 +1,6 @@
 import { DetailedHTMLProps, ButtonHTMLAttributes, ReactNode } from "react";
 import * as React from "react";
-import styled from "styled-components";
+import styled from "styled-components/macro";
 // import { themeColor } from "../../shared/styles-utils";
 
 type SizeType = "small" | "medium";
