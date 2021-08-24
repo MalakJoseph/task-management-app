@@ -93,7 +93,7 @@ const LoginPage = () => {
           />
         )}
         {isLoading ? (
-          <Loader type="MutatingDots" color="white" secondaryColor="#0075ff" />
+          <Loader type="Bars" width="100px" height="100px" color="#0075ff" />
         ) : (
           isWrongValues && (
             <p>Please enter correct values for Email and Password</p>
