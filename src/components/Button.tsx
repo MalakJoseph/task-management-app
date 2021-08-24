@@ -72,21 +72,21 @@ const BaseButton = React.forwardRef<RefType, PrimaryButtonProps>(
 );
 
 export const PrimaryButton = styled(BaseButton)`
-  font-size: 14px;
-  font-weight: 600;
-  color: #4486d4;
-  margin: 0;
-  padding: 10px 16px;
-  cursor: pointer;
   display: flex;
   flex: ${({ fullWidth }) => (fullWidth ? "1 1 auto" : "0 0 auto")};
-  width: ${({ fullWidth }) => (fullWidth ? "100%" : "auto")};
-  line-height: 1.25;
-  text-decoration: none;
   align-items: center;
   justify-content: center;
+  width: ${({ fullWidth }) => (fullWidth ? "100%" : "auto")};
+  margin: 0;
+  padding: 10px 16px;
+  color: #4486d4;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
   border: 0;
   border-radius: 30px;
+  cursor: pointer;
 
   &:hover {
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);

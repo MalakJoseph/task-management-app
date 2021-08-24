@@ -82,7 +82,10 @@ const LoginPage = () => {
     <StyledContainer>
       <SignInForm justify="space-between" align="flex-start">
         {isForgotPassword ? (
-          <ResetPassword onSubmit={handleSubmit} />
+          <ResetPassword
+            onSubmit={handleSubmit}
+            setIsForgotPassword={setIsForgotPassword}
+          />
         ) : (
           <SignIn
             onSubmit={handleSubmit}
