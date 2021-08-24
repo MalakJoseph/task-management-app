@@ -30,6 +30,7 @@ const SignIn = ({ onSubmit, onClickForgotPassword }: SignInProps) => {
             Password
             <InputWithIcon
               name="PASSWORD"
+              minLength={7}
               prefix={<PasswordIcon />}
               placeholder="Enter your Password"
             />

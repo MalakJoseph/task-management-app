@@ -1,16 +1,19 @@
 import * as React from "react";
 import axios from "axios";
 import styled from "styled-components/macro";
+import Loader from "react-loader-spinner";
 import { useHistory } from "react-router-dom";
-import { UserInfo } from "../types";
-import { AppContainer, FlexCol } from "../utils/globals";
 import SignIn from "../components/SignIn";
 import ResetPassword from "../components/ResetPassword";
+import { AppContainer, FlexCol } from "../utils/globals";
+import { UserInfo } from "../types";
 
 const LoginPage = () => {
   const history = useHistory();
   const [isWrongValues, setIsWrongValues] = React.useState(false);
   const [isForgotPassword, setIsForgotPassword] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  // tempError should be replaced with sending emails via postgres
   const [tempError, setTempError] = React.useState("");
   const token = localStorage.getItem("token");
 
@@ -31,23 +34,30 @@ const LoginPage = () => {
     }
 
     if (submitType === "FORGOT_PASSWORD") {
+      setIsLoading(true);
       await axios
         .patch("/users", body)
         .then((res) => res.status === 200 && setIsForgotPassword(false))
-        .catch((e) => {
-          if (e.response.status === 404) setTempError(e.response.statusText);
-        });
+        .catch((err) => {
+          // this is the one which needs to be handled by postgres
+          if (err) setTempError(err.response.statusText);
+        })
+        .finally(() => setIsLoading(false));
+
+      setIsWrongValues(false);
       history.replace("/login");
       return;
     }
 
     if (submitType === "LOGIN") {
+      setIsLoading(true);
       const token = await axios
         .post<{ user: UserInfo; token: string }>("/users/login", body)
         .then((res) => res.data.token)
-        .catch((e) => {
-          if (e.response.status === 401) setIsWrongValues(true);
-        });
+        .catch((err) => {
+          if (err) setIsWrongValues(true);
+        })
+        .finally(() => setIsLoading(false));
 
       if (!token) {
         return;
@@ -79,9 +89,14 @@ const LoginPage = () => {
             onClickForgotPassword={handleClickForgotPassword}
           />
         )}
-        {isWrongValues && (
-          <p>Please enter correct values for Email and Password</p>
+        {isLoading ? (
+          <Loader type="MutatingDots" color="white" secondaryColor="#0075ff" />
+        ) : (
+          isWrongValues && (
+            <p>Please enter correct values for Email and Password</p>
+          )
         )}
+
         {tempError && <p>{tempError}</p>}
       </SignInForm>
       <SignUpRedirection>

@@ -27,6 +27,7 @@ const ResetPassword = ({ onSubmit }: ResetPasswordProps) => {
           <InputWithIcon
             name="PASSWORD"
             prefix={<PasswordIcon />}
+            minLength={7}
             placeholder="Enter your New Password"
           />
         </Label>
