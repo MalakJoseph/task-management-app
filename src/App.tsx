@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { debounce } from "lodash";
 import Home from "./pages/HomePage";
 import Login from "./pages/LoginPage";
+import SignUp from "./components/SignUp";
 
 function App() {
   const [windowWidth, setWindowWidth] = React.useState(0);
@@ -26,6 +27,9 @@ function App() {
           <Switch>
             <Route path="/login">
               <Login />
+            </Route>
+            <Route path="/register">
+              <SignUp />
             </Route>
             <Route path="/">
               <Home />

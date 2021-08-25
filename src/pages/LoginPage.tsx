@@ -2,7 +2,7 @@ import * as React from "react";
 import axios from "axios";
 import styled from "styled-components/macro";
 import Loader from "react-loader-spinner";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import SignIn from "../components/SignIn";
 import ResetPassword from "../components/ResetPassword";
 import { AppContainer, FlexCol } from "../utils/globals";
@@ -52,7 +52,7 @@ const LoginPage = () => {
     if (submitType === "LOGIN") {
       setIsLoading(true);
       const token = await axios
-        .post<{ user: UserInfo; token: string }>("/users/login", body)
+        .post("/users/login", body)
         .then((res) => res.data.token)
         .catch((err) => {
           if (err) setIsWrongValues(true);
@@ -103,7 +103,7 @@ const LoginPage = () => {
         {tempError && <p>{tempError}</p>}
       </SignInForm>
       <SignUpRedirection>
-        Have an account? <a href={"#"}>Sign up</a>
+        Don't have an account? <Link to={"/register"}>Sign up</Link>
       </SignUpRedirection>
     </StyledContainer>
   );
