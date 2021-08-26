@@ -10,15 +10,14 @@ import { ReactComponent as EmailIcon } from "../assets/email.svg";
 import { ReactComponent as PasswordIcon } from "../assets/passkey.svg";
 import { ReactComponent as PhoneIcon } from "../assets/smartphone.svg";
 import { ReactComponent as UserIcon } from "../assets/user.svg";
+import { Field, Form } from "react-final-form";
 
-type FormEventHandler = React.FormEvent & {
-  target: {
-    NAME: { value: string };
-    PHONE: { value: string };
-    EMAIL: { value: string };
-    PASSWORD: { value: string };
-    CONFIRM_PASSWORD: { value: string };
-  };
+type FormDataType = {
+  NAME: string;
+  PHONE: string;
+  EMAIL: string;
+  PASSWORD: string;
+  CONFIRM_PASSWORD: string;
 };
 
 const SignUp = () => {
@@ -27,14 +26,12 @@ const SignUp = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [isWrongPassword, setIsWrongPassword] = React.useState(false);
 
-  const handleSubmit = async (e: FormEventHandler) => {
-    e.preventDefault();
-
+  const onSubmit = async (input: FormDataType) => {
     const body = {
-      name: e.target.NAME.value,
-      phone: e.target.PHONE.value,
-      email: e.target.EMAIL.value,
-      password: e.target.PASSWORD.value,
+      name: input.NAME,
+      phone: input.PHONE,
+      email: input.EMAIL,
+      password: input.PASSWORD,
     };
 
     if (
@@ -43,13 +40,13 @@ const SignUp = () => {
       !body.email.length ||
       !body.password.length ||
       !body.password.length ||
-      !e.target.CONFIRM_PASSWORD.value
+      !input.CONFIRM_PASSWORD
     ) {
       setIsWrongValues(true);
       return;
     }
 
-    if (e.target.CONFIRM_PASSWORD.value !== body.password) {
+    if (input.CONFIRM_PASSWORD !== body.password) {
       setIsWrongPassword(true);
       return;
     }
@@ -81,54 +78,105 @@ const SignUp = () => {
         <>
           <SignUpForm justify="space-between" align="flex-start">
             <h2>Sign Up</h2>
-            {/* @ts-ignore */}
-            <StyledForm onSubmit={(e: FormEventHandler) => handleSubmit(e)}>
-              <Label>
-                Full Name
-                <InputWithIcon
-                  name="NAME"
-                  prefix={<UserIcon />}
-                  placeholder="Enter your Name"
-                />
-              </Label>
-              <Label>
-                Phone No
-                <InputWithIcon
-                  name="PHONE"
-                  prefix={<PhoneIcon />}
-                  placeholder="Enter your Phone no"
-                />
-              </Label>
-              <Label>
-                Email
-                <InputWithIcon
-                  name="EMAIL"
-                  prefix={<EmailIcon />}
-                  placeholder="Enter your Email"
-                />
-              </Label>
-              <Label>
-                Password
-                <InputWithIcon
-                  name="PASSWORD"
-                  minLength={7}
-                  prefix={<PasswordIcon />}
-                  placeholder="Enter your Password"
-                />
-              </Label>
-              <Label>
-                Confirm Password
-                <InputWithIcon
-                  name="CONFIRM_PASSWORD"
-                  minLength={7}
-                  prefix={<PasswordIcon />}
-                  placeholder="Confirm Password"
-                />
-              </Label>
-              <PrimaryButton type="submit" fullWidth>
-                REGISTER
-              </PrimaryButton>
-            </StyledForm>
+            <Form
+              onSubmit={onSubmit}
+              validate={validate}
+              render={({ handleSubmit }) => (
+                <StyledForm onSubmit={handleSubmit}>
+                  <Field name="NAME">
+                    {({ input, meta: { touched, error } }) => (
+                      <div>
+                        <Label>
+                          Full Name
+                          <InputWithIcon
+                            {...input}
+                            className={error && touched ? "invalid" : ""}
+                            prefix={<UserIcon />}
+                            placeholder="Enter your Name"
+                          />
+                        </Label>
+                        {touched && error && (
+                          <RequiredSpan>{error}</RequiredSpan>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                  <Field name="PHONE">
+                    {({ input, meta: { touched, error } }) => (
+                      <div>
+                        <Label>
+                          Phone No
+                          <InputWithIcon
+                            {...input}
+                            prefix={<PhoneIcon />}
+                            placeholder="Enter your Phone no"
+                          />
+                        </Label>
+                        {touched && error && (
+                          <RequiredSpan>{error}</RequiredSpan>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                  <Field name="EMAIL">
+                    {({ input, meta: { touched, error } }) => (
+                      <div>
+                        <Label>
+                          Email
+                          <InputWithIcon
+                            {...input}
+                            prefix={<EmailIcon />}
+                            placeholder="Enter your Email"
+                          />
+                        </Label>
+                        {touched && error && (
+                          <RequiredSpan>{error}</RequiredSpan>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                  <Field name="PASSWORD">
+                    {({ input, meta: { touched, error } }) => (
+                      <div>
+                        <Label>
+                          Password
+                          <InputWithIcon
+                            {...input}
+                            minLength={7}
+                            prefix={<PasswordIcon />}
+                            placeholder="Enter your Password"
+                          />
+                        </Label>
+                        {touched && error && (
+                          <RequiredSpan>{error}</RequiredSpan>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                  <Field name="CONFIRM_PASSWORD">
+                    {({ input, meta: { touched, error } }) => (
+                      <div>
+                        <Label>
+                          Confirm Password
+                          <InputWithIcon
+                            {...input}
+                            minLength={7}
+                            prefix={<PasswordIcon />}
+                            placeholder="Confirm Password"
+                          />
+                        </Label>
+                        {touched && error && (
+                          <RequiredSpan>{error}</RequiredSpan>
+                        )}
+                      </div>
+                    )}
+                  </Field>
+                  <PrimaryButton type="submit" fullWidth>
+                    REGISTER
+                  </PrimaryButton>
+                </StyledForm>
+              )}
+            />
             {isLoading ? (
               <Loader
                 type="Bars"
@@ -159,12 +207,51 @@ export default SignUp;
 /**
  *
  *
+ * Helpers
+ *
+ *
+ */
+
+const validate = (values: FormDataType) => {
+  const errors = {} as FormDataType;
+  if (!values.NAME) {
+    errors.NAME = "Your name is required";
+  }
+
+  if (!values.PHONE) {
+    errors.PHONE = "Please enter a valid phone number";
+  }
+
+  if (
+    !values?.EMAIL ||
+    !values?.EMAIL?.match(
+      /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/
+    )
+  ) {
+    errors.EMAIL = "Please enter a valid email address";
+  }
+
+  if (!values.PASSWORD) {
+    errors.PASSWORD = "Required field";
+  }
+
+  if (!values.CONFIRM_PASSWORD) {
+    errors.CONFIRM_PASSWORD = "Required field";
+  }
+
+  return errors;
+};
+
+/**
+ *
+ *
  * Styles
  *
  *
  */
 
 const StyledContainer = styled(AppContainer)`
+  min-height: auto;
   color: #fff;
   /* Credit: https://www.99colors.net/name/cyan */
   /* Background Gradient for Monochromatic Colors */
@@ -200,4 +287,14 @@ const StyledForm = styled.form`
   }
 `;
 
-const SignInRedirection = styled.div``;
+const RequiredSpan = styled.span`
+  font-size: 12px;
+  color: #d21c1c;
+  font-weight: 400;
+  height: 0;
+  margin-top: 4px;
+`;
+
+const SignInRedirection = styled.div`
+  margin-top: 10px;
+`;

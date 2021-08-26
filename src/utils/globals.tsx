@@ -1,4 +1,4 @@
-import styled from "styled-components/macro";
+import styled from "styled-components";
 import { Align, Justify } from "../types";
 
 const FlexRow = styled.div`
@@ -36,10 +36,6 @@ const Label = styled.label`
 
 const AppContainer = styled(FlexCol)`
   padding: 30% 15% 10%;
-  height: 100%;
-  height: -moz-available; /* WebKit-based browsers will ignore this. */
-  height: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
-  height: fill-available;
 `;
 
 export { AppContainer, FlexRow, FlexCol, Label };

@@ -92,6 +92,10 @@ const InputWrapper = styled(FlexRow)<{
   border-radius: 4px;
   box-shadow: 1px 1px 5px #6390c5;
 
+  &.invalid {
+    border: 1px solid #d21c1c;
+  }
+
   ${({ borderWidth }) =>
     borderWidth &&
     css`
