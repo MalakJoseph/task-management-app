@@ -1,6 +1,6 @@
 html,
 body {
-  height: 100vh;
+  height: -webkit-fill-available;
 }
 
 body,
@@ -19,6 +19,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
 code {

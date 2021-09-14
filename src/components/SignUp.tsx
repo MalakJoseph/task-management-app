@@ -251,7 +251,7 @@ const validate = (values: FormDataType) => {
  */
 
 const StyledContainer = styled(AppContainer)`
-  min-height: auto;
+  min-height: -webkit-fill-available;
   color: #fff;
   /* Credit: https://www.99colors.net/name/cyan */
   /* Background Gradient for Monochromatic Colors */

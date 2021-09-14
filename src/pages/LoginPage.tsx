@@ -112,6 +112,7 @@ const LoginPage = () => {
 export default LoginPage;
 
 const StyledContainer = styled(AppContainer)`
+  min-height: -webkit-fill-available;
   color: #fff;
   /* Credit: https://www.99colors.net/name/cyan */
   /* Background Gradient for Monochromatic Colors */
