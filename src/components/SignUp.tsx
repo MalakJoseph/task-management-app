@@ -22,9 +22,10 @@ type FormDataType = {
 
 const SignUp = () => {
   const history = useHistory();
-  const [isWrongValues, setIsWrongValues] = React.useState(false);
+  const [isMismatchPassword, setIsMismatchPassword] = React.useState(false);
+  const [isExistAccount, setIsExistAccount] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isWrongPassword, setIsWrongPassword] = React.useState(false);
+  const [isOffline, setIsOffline] = React.useState(false);
 
   const onSubmit = async (input: FormDataType) => {
     const body = {
@@ -34,30 +35,22 @@ const SignUp = () => {
       password: input.PASSWORD,
     };
 
-    if (
-      !body.name.length ||
-      !body.phone.length ||
-      !body.email.length ||
-      !body.password.length ||
-      !body.password.length ||
-      !input.CONFIRM_PASSWORD
-    ) {
-      setIsWrongValues(true);
+    if (input.CONFIRM_PASSWORD !== input.PASSWORD) {
+      setIsMismatchPassword(true);
       return;
     }
 
-    if (input.CONFIRM_PASSWORD !== body.password) {
-      setIsWrongPassword(true);
-      return;
-    }
-
+    setIsMismatchPassword(false);
+    setIsExistAccount(false);
     setIsLoading(true);
+    setIsOffline(false);
 
     const token = await axios
       .post("/users", body)
       .then((res) => res.data.token)
       .catch((err) => {
-        if (err) setIsWrongValues(true);
+        if (err.message === "Network Error") setIsOffline(true);
+        if (err.response.status === 403) setIsExistAccount(true);
       })
       .finally(() => setIsLoading(false));
 
@@ -65,139 +58,113 @@ const SignUp = () => {
       return;
     }
 
-    setIsWrongValues(false);
     localStorage.setItem("token", token);
     history.replace("/");
   };
 
   return (
     <StyledContainer>
-      {isLoading ? (
-        <Loader type="Bars" width="100px" height="100px" color="#0075ff" />
-      ) : (
-        <>
-          <SignUpForm justify="space-between" align="flex-start">
-            <h2>Sign Up</h2>
-            <Form
-              onSubmit={onSubmit}
-              validate={validate}
-              render={({ handleSubmit }) => (
-                <StyledForm onSubmit={handleSubmit}>
-                  <Field name="NAME">
-                    {({ input, meta: { touched, error } }) => (
-                      <div>
-                        <Label>
-                          Full Name
-                          <InputWithIcon
-                            {...input}
-                            className={error && touched ? "invalid" : ""}
-                            prefix={<UserIcon />}
-                            placeholder="Enter your Name"
-                          />
-                        </Label>
-                        {touched && error && (
-                          <RequiredSpan>{error}</RequiredSpan>
-                        )}
-                      </div>
-                    )}
-                  </Field>
-                  <Field name="PHONE">
-                    {({ input, meta: { touched, error } }) => (
-                      <div>
-                        <Label>
-                          Phone No
-                          <InputWithIcon
-                            {...input}
-                            prefix={<PhoneIcon />}
-                            placeholder="Enter your Phone no"
-                          />
-                        </Label>
-                        {touched && error && (
-                          <RequiredSpan>{error}</RequiredSpan>
-                        )}
-                      </div>
-                    )}
-                  </Field>
-                  <Field name="EMAIL">
-                    {({ input, meta: { touched, error } }) => (
-                      <div>
-                        <Label>
-                          Email
-                          <InputWithIcon
-                            {...input}
-                            prefix={<EmailIcon />}
-                            placeholder="Enter your Email"
-                          />
-                        </Label>
-                        {touched && error && (
-                          <RequiredSpan>{error}</RequiredSpan>
-                        )}
-                      </div>
-                    )}
-                  </Field>
-                  <Field name="PASSWORD">
-                    {({ input, meta: { touched, error } }) => (
-                      <div>
-                        <Label>
-                          Password
-                          <InputWithIcon
-                            {...input}
-                            minLength={7}
-                            prefix={<PasswordIcon />}
-                            placeholder="Enter your Password"
-                          />
-                        </Label>
-                        {touched && error && (
-                          <RequiredSpan>{error}</RequiredSpan>
-                        )}
-                      </div>
-                    )}
-                  </Field>
-                  <Field name="CONFIRM_PASSWORD">
-                    {({ input, meta: { touched, error } }) => (
-                      <div>
-                        <Label>
-                          Confirm Password
-                          <InputWithIcon
-                            {...input}
-                            minLength={7}
-                            prefix={<PasswordIcon />}
-                            placeholder="Confirm Password"
-                          />
-                        </Label>
-                        {touched && error && (
-                          <RequiredSpan>{error}</RequiredSpan>
-                        )}
-                      </div>
-                    )}
-                  </Field>
-                  <PrimaryButton type="submit" fullWidth>
-                    REGISTER
-                  </PrimaryButton>
-                </StyledForm>
-              )}
-            />
-            {isLoading ? (
-              <Loader
-                type="Bars"
-                width="100px"
-                height="100px"
-                color="#0075ff"
-              />
-            ) : (
-              <>
-                {isWrongPassword && <p>Doesn't match!</p>}
-                {isWrongValues && (
-                  <p>Please enter correct values for Email and Password</p>
+      <SignUpForm justify="space-between" align="flex-start">
+        <h2>Sign Up</h2>
+        <Form
+          onSubmit={onSubmit}
+          validate={validate}
+          render={({ handleSubmit }) => (
+            <StyledForm onSubmit={handleSubmit}>
+              <Field name="NAME">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Full Name
+                      <InputWithIcon
+                        {...input}
+                        className={error && touched ? "invalid" : ""}
+                        prefix={<UserIcon />}
+                        placeholder="Enter your Name"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
                 )}
-              </>
-            )}
-          </SignUpForm>
-          <SignInRedirection>
-            Have an account? <Link to={"/login"}>Sign in</Link>
-          </SignInRedirection>
-        </>
-      )}
+              </Field>
+              <Field name="PHONE">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Phone No
+                      <InputWithIcon
+                        {...input}
+                        prefix={<PhoneIcon />}
+                        placeholder="Enter your Phone no"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
+                )}
+              </Field>
+              <Field name="EMAIL">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Email
+                      <InputWithIcon
+                        {...input}
+                        prefix={<EmailIcon />}
+                        placeholder="Enter your Email"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
+                )}
+              </Field>
+              <Field name="PASSWORD">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Password
+                      <InputWithIcon
+                        {...input}
+                        minLength={7}
+                        prefix={<PasswordIcon />}
+                        placeholder="Enter your Password"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
+                )}
+              </Field>
+              <Field name="CONFIRM_PASSWORD">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Confirm Password
+                      <InputWithIcon
+                        {...input}
+                        minLength={7}
+                        prefix={<PasswordIcon />}
+                        placeholder="Confirm Password"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
+                )}
+              </Field>
+              <PrimaryButton type="submit" fullWidth>
+                REGISTER
+              </PrimaryButton>
+            </StyledForm>
+          )}
+        />
+        {isMismatchPassword && <p>Doesn't match!</p>}
+        {isExistAccount && <p>This E-mail already exists</p>}
+        {isLoading && (
+          <Loader type="Bars" width="100px" height="100px" color="#0075ff" />
+        )}
+        {isOffline && <p>Please check your internet connection</p>}
+      </SignUpForm>
+      <SignInRedirection>
+        Have an account? <Link to={"/login"}>Sign in</Link>
+      </SignInRedirection>
     </StyledContainer>
   );
 };

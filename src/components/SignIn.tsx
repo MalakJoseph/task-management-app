@@ -1,53 +1,156 @@
+import * as React from "react";
+import axios from "axios";
 import styled from "styled-components/macro";
+import { Field, Form } from "react-final-form";
+import { useHistory } from "react-router-dom";
 import InputWithIcon from "./shared/InputWithIcon";
 import { PrimaryButton } from "./shared/Button";
 import { Label } from "../utils/globals";
 import { ReactComponent as EmailIcon } from "../assets/email.svg";
 import { ReactComponent as PasswordIcon } from "../assets/passkey.svg";
+import Loader from "react-loader-spinner";
+
+type FormDataType = {
+  EMAIL: string;
+  PASSWORD: string;
+};
 
 interface SignInProps {
-  onSubmit: (e: any, submitType: "LOGIN" | "FORGOT_PASSWORD") => void;
-  onClickForgotPassword: (
-    e: React.MouseEvent<HTMLHeadingElement, MouseEvent>
-  ) => void;
+  setIsForgotPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SignIn = ({ onSubmit, onClickForgotPassword }: SignInProps) => {
+const SignIn = ({ setIsForgotPassword }: SignInProps) => {
+  const history = useHistory();
+
+  const [isWrongValues, setIsWrongValues] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isOffline, setIsOffline] = React.useState(false);
+
+  const onSubmit = async (input: FormDataType) => {
+    const body = {
+      email: input.EMAIL,
+      password: input.PASSWORD,
+    };
+
+    setIsWrongValues(false);
+    setIsLoading(true);
+    setIsOffline(false);
+
+    const token = await axios
+      .post("/users/login", body)
+      .then((res) => res.data.token)
+      .catch((err) => {
+        if (err.message === "Network Error") setIsOffline(true);
+        if (err.response.status === 401) setIsWrongValues(true);
+      })
+      .finally(() => setIsLoading(false));
+
+    if (!token) {
+      return;
+    }
+
+    setIsWrongValues(false);
+    localStorage.setItem("token", token);
+    history.replace("/");
+  };
+
+  const handleClickForgotPassword = (
+    e: React.MouseEvent<HTMLHeadingElement, MouseEvent>
+  ) => {
+    // Investigate
+    e.preventDefault();
+    setIsForgotPassword(true);
+    setIsWrongValues(false);
+  };
+
   return (
     <>
       <h2>Sign In</h2>
-      <StyledForm onSubmit={(e) => onSubmit(e, "LOGIN")}>
-        <Label>
-          Email
-          <InputWithIcon
-            name="EMAIL"
-            prefix={<EmailIcon />}
-            placeholder="Enter your Email"
-          />
-        </Label>
-        <div>
-          <Label>
-            Password
-            <InputWithIcon
-              name="PASSWORD"
-              minLength={7}
-              prefix={<PasswordIcon />}
-              placeholder="Enter your Password"
-            />
-          </Label>
-          <StyledH5 onClick={(e) => onClickForgotPassword(e)}>
-            Forgot Password?
-          </StyledH5>
-        </div>
-        <PrimaryButton type="submit" fullWidth>
-          LOGIN
-        </PrimaryButton>
-      </StyledForm>
+      <Form
+        onSubmit={onSubmit}
+        validate={validate}
+        render={({ handleSubmit }) => (
+          <StyledForm onSubmit={handleSubmit}>
+            <Field name="EMAIL">
+              {({ input, meta: { touched, error } }) => (
+                <div>
+                  <Label>
+                    Email
+                    <InputWithIcon
+                      {...input}
+                      prefix={<EmailIcon />}
+                      placeholder="Enter your Email"
+                    />
+                  </Label>
+                  {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                </div>
+              )}
+            </Field>
+            <div>
+              <Field name="PASSWORD">
+                {({ input, meta: { touched, error } }) => (
+                  <div>
+                    <Label>
+                      Password
+                      <InputWithIcon
+                        {...input}
+                        minLength={7}
+                        prefix={<PasswordIcon />}
+                        placeholder="Enter your Password"
+                      />
+                    </Label>
+                    {touched && error && <RequiredSpan>{error}</RequiredSpan>}
+                  </div>
+                )}
+              </Field>
+              <StyledH5 onClick={handleClickForgotPassword}>
+                Forgot Password?
+              </StyledH5>
+            </div>
+            <PrimaryButton type="submit" fullWidth>
+              LOGIN
+            </PrimaryButton>
+          </StyledForm>
+        )}
+      />
+      {isWrongValues && (
+        <p>Please enter correct values for Email and Password</p>
+      )}
+      {isLoading && (
+        <Loader type="Bars" width="100px" height="100px" color="#0075ff" />
+      )}
+      {isOffline && <p>Please check your internet connection</p>}
     </>
   );
 };
 
 export default SignIn;
+
+/**
+ *
+ *
+ * Helpers
+ *
+ *
+ */
+
+const validate = (values: FormDataType) => {
+  const errors = {} as FormDataType;
+  if (
+    !values?.EMAIL ||
+    !values?.EMAIL?.match(
+      /^([a-zA-Z0-9_.-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/
+    )
+  ) {
+    errors.EMAIL = "Please enter a valid email address";
+  }
+
+  if (!values.PASSWORD) {
+    errors.PASSWORD = "Required field";
+  }
+
+  return errors;
+};
 
 /**
  *
@@ -61,6 +164,14 @@ const StyledForm = styled.form`
   & > *:not(:last-child) {
     margin-bottom: 20px;
   }
+`;
+
+const RequiredSpan = styled.span`
+  font-size: 12px;
+  color: #d21c1c;
+  font-weight: 400;
+  height: 0;
+  margin-top: 4px;
 `;
 
 const StyledH5 = styled.h5`
