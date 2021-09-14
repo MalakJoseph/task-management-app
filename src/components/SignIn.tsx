@@ -1,6 +1,6 @@
 import styled from "styled-components/macro";
-import InputWithIcon from "./InputWithIcon";
-import { PrimaryButton } from "../components/Button";
+import InputWithIcon from "./shared/InputWithIcon";
+import { PrimaryButton } from "./shared/Button";
 import { Label } from "../utils/globals";
 import { ReactComponent as EmailIcon } from "../assets/email.svg";
 import { ReactComponent as PasswordIcon } from "../assets/passkey.svg";
