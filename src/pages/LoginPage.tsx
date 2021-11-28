@@ -4,7 +4,6 @@ import { Link, useHistory } from "react-router-dom";
 import SignIn from "../components/SignIn";
 import ResetPassword from "../components/ResetPassword";
 import { AppContainer, FlexCol } from "../utils/globals";
-import { UserInfo } from "../types";
 
 const LoginPage = () => {
   const history = useHistory();
@@ -17,11 +16,14 @@ const LoginPage = () => {
   return (
     <StyledContainer>
       <SignInForm justify="space-between" align="flex-start">
-        {isForgotPassword ? (
-          <ResetPassword setIsForgotPassword={setIsForgotPassword} />
-        ) : (
-          <SignIn setIsForgotPassword={setIsForgotPassword} />
-        )}
+        <ResetPassword
+          active={!!isForgotPassword}
+          setIsForgotPassword={setIsForgotPassword}
+        />
+        <SignIn
+          active={!isForgotPassword}
+          setIsForgotPassword={setIsForgotPassword}
+        />
       </SignInForm>
       <SignUpRedirection>
         Don't have an account? <Link to={"/register"}>Sign up</Link>
@@ -57,9 +59,8 @@ const StyledContainer = styled(AppContainer)`
 
 const SignInForm = styled(FlexCol)`
   width: 100%;
-  & > *:not(:last-child) {
-    margin-bottom: 20px;
-  }
+  position: relative;
+  overflow-x: hidden;
 `;
 
 const SignUpRedirection = styled.div``;

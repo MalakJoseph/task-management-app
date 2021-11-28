@@ -17,14 +17,15 @@ type FormDataType = {
 };
 
 interface ResetPasswordProps {
+  active: boolean;
   setIsForgotPassword: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ResetPassword = ({ setIsForgotPassword }: ResetPasswordProps) => {
+const ResetPassword = ({ active, setIsForgotPassword }: ResetPasswordProps) => {
   const [isMismatchPassword, setIsMismatchPassword] = React.useState(false);
-  // tempError should be replaced with sending emails via postgres
   const [isLoading, setIsLoading] = React.useState(false);
   const [isOffline, setIsOffline] = React.useState(false);
+  // tempError should be replaced with sending emails via postgres
   const [tempError, setTempError] = React.useState("");
 
   const onSubmit = async (input: FormDataType) => {
@@ -38,8 +39,7 @@ const ResetPassword = ({ setIsForgotPassword }: ResetPasswordProps) => {
       return;
     }
 
-    setIsMismatchPassword(false);
-    setIsOffline(false);
+    resetStates();
     setIsLoading(true);
 
     await axios
@@ -56,10 +56,21 @@ const ResetPassword = ({ setIsForgotPassword }: ResetPasswordProps) => {
       .finally(() => setIsLoading(false));
   };
 
+  const resetStates = () => {
+    setTempError("");
+    setIsMismatchPassword(false);
+    setIsOffline(false);
+  };
+
+  const handleBack = () => {
+    resetStates();
+    setIsForgotPassword(false);
+  };
+
   return (
-    <>
+    <Container className={active ? "active" : ""}>
       <StyledHeading>
-        <StyledButton onClick={() => setIsForgotPassword(false)}>
+        <StyledButton onClick={handleBack}>
           <StyledIcon>
             <LeftArrowIcon />
           </StyledIcon>
@@ -132,7 +143,7 @@ const ResetPassword = ({ setIsForgotPassword }: ResetPasswordProps) => {
       )}
       {isOffline && <p>Please check your internet connection</p>}
       {tempError && <p>{tempError}</p>}
-    </>
+    </Container>
   );
 };
 
@@ -175,6 +186,25 @@ const validate = (values: FormDataType) => {
  *
  */
 
+const Container = styled.div`
+  width: 100%;
+  text-align: center;
+  transition: all 1s ease-in;
+  transform: translateX(150%);
+  visibility: hidden;
+  opacity: 0;
+
+  &.active {
+    transform: translateX(0%);
+    visibility: visible;
+    opacity: 1;
+  }
+
+  & > *:not(:last-child) {
+    margin-bottom: 20px;
+  }
+`;
+
 const StyledHeading = styled.div`
   width: 100%;
   display: flex;
@@ -198,6 +228,8 @@ const StyledIcon = styled.span`
 
 const StyledForm = styled.form`
   width: inherit;
+  text-align: left;
+
   & > *:not(:last-child) {
     margin-bottom: 20px;
   }
